@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stockline | Barcode Manager</title>
+    <link rel="stylesheet" href="css/main.css">
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
+    <script src="app.js" defer></script>
+</head>
+
+<body>
+    <header class="header">
+        <div class="brand">
+            <div class="brand-mark" aria-hidden="true">B</div>
+            <div>
+                <p class="eyebrow">INVENTORY OPERATIONS</p>
+                <h1>Stockline</h1>
+                <p>Mahsulot boshqaruv tizimi</p>
+            </div>
+        </div>
+        <button id="darkBtn" class="theme-toggle" type="button">◐ <span>Dark mode</span></button>
+    </header>
+
+    <main>
+        <section class="stats" aria-label="Asosiy ko‘rsatkichlar">
+            <div class="stat">
+                <span>📦 Mahsulotlar</span>
+                <b id="totalProducts">0</b>
+            </div>
+            <div class="stat">
+                <span>📊 Jami miqdor</span>
+                <b id="totalQuantity">0</b>
+            </div>
+            <div class="stat">
+                <span>💰 Umumiy qiymat</span>
+                <b id="totalValue">0 so'm</b>
+            </div>
+            <div class="stat">
+                <span>📷 Scanlar</span>
+                <b id="totalScans">0</b>
+            </div>
+        </section>
+
+        <section class="card scanner-card">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">QUICK CAPTURE</p>
+                    <h2>Barcode scanner</h2>
+                </div>
+                <span class="status-pill"><i></i> Ready</span>
+            </div>
+            <div id="reader"></div>
+            <div class="buttons">
+                <button id="startScanner" type="button">📷 Kamerani yoqish</button>
+                <button id="stopScanner" type="button" class="secondary">⛔ To‘xtatish</button>
+                <button id="torchBtn" type="button" class="secondary hidden">🔦 Fonar</button>
+            </div>
+
+            <div class="manual">
+                <input id="barcodeInput" type="text" placeholder="Barcode yoki mahsulot nomini kiriting" />
+                <button id="searchBarcode" type="button">🔎 Qidirish</button>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">CATALOGUE</p>
+                    <h2 id="formTitle">Mahsulot qo‘shish</h2>
+                </div>
+                <span class="section-number">01</span>
+            </div>
+            <input type="hidden" id="productId" />
+
+            <div class="form">
+                <div>
+                    <label for="productBarcode">Barcode</label>
+                    <input id="productBarcode" type="text" placeholder="8901234567890" />
+                </div>
+
+                <div>
+                    <label for="productName">Mahsulot nomi</label>
+                    <input id="productName" type="text" placeholder="Masalan: Coca Cola" />
+                </div>
+
+                <div>
+                    <label for="productPrice">Narxi</label>
+                    <input id="productPrice" type="number" min="0" step="0.01" placeholder="10000" />
+                </div>
+
+                <div>
+                    <label for="productQuantity">Miqdori</label>
+                    <input id="productQuantity" type="number" min="0" step="1" placeholder="20" />
+                </div>
+
+                <div>
+                    <label for="productCategory">Kategoriya</label>
+                    <select id="productCategory">
+                        <option value="Oziq-ovqat">Oziq-ovqat</option>
+                        <option value="Ichimliklar">Ichimliklar</option>
+                        <option value="Kiyim">Kiyim</option>
+                        <option value="Texnika">Texnika</option>
+                        <option value="Uy mahsulotlari">Uy mahsulotlari</option>
+                        <option value="Boshqa">Boshqa</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button id="saveProduct" type="button">💾 Saqlash</button>
+                    <button id="clearForm" type="button" class="secondary">🧹 Tozalash</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="card products-card">
+            <div class="section-heading products-heading">
+                <div>
+                    <p class="eyebrow">LIVE CATALOGUE</p>
+                    <h2>Mahsulotlar</h2>
+                </div>
+                <div class="export-buttons">
+                <button id="csvBtn" type="button">📤 CSV</button>
+                <button id="excelBtn" type="button">📊 Excel</button>
+                </div>
+            </div>
+            <input id="search" type="text" placeholder="Nom, barcode yoki kategoriya bo‘yicha qidiring" />
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Barcode</th>
+                            <th>Nom</th>
+                            <th>Narx</th>
+                            <th>Miqdor</th>
+                            <th>Kategoriya</th>
+                            <th>Scan soni</th>
+                            <th>Amallar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTable"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="history-title">
+                <div>
+                    <p class="eyebrow">ACTIVITY LOG</p>
+                    <h2>Scan tarixi</h2>
+                </div>
+                <button id="clearHistory" type="button" class="secondary">🗑️ Tarixni tozalash</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Vaqt</th>
+                            <th>Barcode</th>
+                            <th>Mahsulot</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTable"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+</body>
+
+</html>
