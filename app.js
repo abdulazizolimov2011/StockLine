@@ -2,8 +2,6 @@ let products = [];
 let scanHistory = [];
 let scanner = null;
 
-// Prevents the camera's continuous decode loop from re-triggering the
-// same barcode dozens of times per second.
 let lastScan = { code: null, time: 0 };
 const SCAN_COOLDOWN_MS = 2500;
 
@@ -364,7 +362,7 @@ async function startScanner() {
             decodedText => {
                 processScan(decodedText, { fromCamera: true });
             },
-            () => {}
+            () => { }
         );
 
         const video = document.querySelector("#reader video");
